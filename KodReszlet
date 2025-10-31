@@ -1,0 +1,556 @@
+using System.Collections.Generic;
+using System;
+
+public class Diak : Felhasznalo
+{
+    private List<Jegy> jegyek;
+    private List<Hianyzas> hianyzasok;
+
+    public Diak(string nev, string fn, string jelszo)
+        : base(nev, fn, jelszo, "Diák")
+    {
+        jegyek = new List<Jegy>();
+        hianyzasok = new List<Hianyzas>();
+    }
+
+    public void HozzaadJegy(Jegy j)
+    {
+        jegyek.Add(j);
+    }
+
+    public void HozzaadHianyzas(Hianyzas h)
+    {
+        hianyzasok.Add(h);
+    }
+
+    public void KiirJegyek()
+    {
+        Console.WriteLine("\n--- Jegyeid ---");
+        if (jegyek.Count == 0)
+            Console.WriteLine("Nincsenek jegyeid.");
+        else
+            foreach (var j in jegyek)
+                Console.WriteLine(j);
+    }
+
+    public void KiirHianyzasok()
+    {
+        Console.WriteLine("\n--- Hiányzások ---");
+        if (hianyzasok.Count == 0)
+            Console.WriteLine("Nincsenek hiányzásaid.");
+        else
+            foreach (var h in hianyzasok)
+                Console.WriteLine(h);
+    }
+
+    public double Atlag()
+    {
+        if (jegyek.Count == 0) return 0;
+        double osszeg = 0;
+        foreach (var j in jegyek)
+            osszeg += j.Ertek;
+        return osszeg / jegyek.Count;
+    }
+
+    public double Osztondij()
+    {
+        double atlag = Atlag();
+        if (atlag >= 4.5) return 50000;
+        else if (atlag >= 4.0) return 25000;
+        else return 0;
+    }
+
+    public void Menu(IskolaRendszer rendszer)
+    {
+        bool fut = true;
+        while (fut)
+        {
+            Console.Clear();
+            Console.WriteLine($"=== Üdv, {Nev}! (Diák) ===");
+            Console.WriteLine("1. Jegyek megtekintése");
+            Console.WriteLine("2. Hiányzások megtekintése");
+            Console.WriteLine("3. Átlag és ösztöndíj");
+            Console.WriteLine("0. Kijelentkezés");
+            Console.Write("Választás: ");
+            string valasz = Console.ReadLine();
+
+            switch (valasz)
+            {
+                case "1":
+                    KiirJegyek();
+                    Console.ReadKey();
+                    break;
+                case "2":
+                    KiirHianyzasok();
+                    Console.ReadKey();
+                    break;
+                case "3":
+                    Console.WriteLine($"\nÁtlag: {Atlag():F2}");
+                    Console.WriteLine($"Ösztöndíj: {Osztondij()} Ft");
+                    Console.ReadKey();
+                    break;
+                case "0":
+                    fut = false;
+                    break;
+            }
+        }
+    }
+
+    public List<Jegy> GetJegyek() { return jegyek; }
+    public List<Hianyzas> GetHianyzasok() { return hianyzasok; }
+}
+
+
+
+
+
+
+
+public class Felhasznalo
+{
+    private string nev;
+    private string felhasznaloNev;
+    private string jelszo;
+    private string szerepkor;
+
+    public string Nev { get { return nev; } }
+    public string FelhasznaloNev { get { return felhasznaloNev; } }
+    public string Szerepkor { get { return szerepkor; } }
+
+    public Felhasznalo(string nev, string felhasznaloNev, string jelszo, string szerepkor)
+    {
+        this.nev = nev;
+        this.felhasznaloNev = felhasznaloNev;
+        this.jelszo = jelszo;
+        this.szerepkor = szerepkor;
+    }
+
+    public bool EllenorizJelszo(string pw)
+    {
+        return jelszo == pw;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+using System;
+
+public class Hianyzas
+{
+    public string Oka { get; private set; }
+    public DateTime Datum { get; private set; }
+
+    public Hianyzas(string oka)
+    {
+        Oka = oka;
+        Datum = DateTime.Now;
+    }
+
+    public override string ToString()
+    {
+        return $"{Datum.ToShortDateString()} - {Oka}";
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+using System;
+
+public class Hianyzas
+{
+    public string Oka { get; private set; }
+    public DateTime Datum { get; private set; }
+
+    public Hianyzas(string oka)
+    {
+        Oka = oka;
+        Datum = DateTime.Now;
+    }
+
+    public override string ToString()
+    {
+        return $"{Datum.ToShortDateString()} - {Oka}";
+    }
+}
+
+
+
+
+
+
+
+
+
+
+public interface IExportImport
+{
+    void Export(string fileName);
+    void Import(string fileName);
+}
+
+
+
+
+
+
+
+
+public interface IExportImport
+{
+    void Export(string fileName);
+    void Import(string fileName);
+}
+using System;
+
+public class Jegy
+{
+    public string Tantargy { get; private set; }
+    public int Ertek { get; private set; }
+    public DateTime Datum { get; private set; }
+
+    public Jegy(string tantargy, int ertek)
+    {
+        Tantargy = tantargy;
+        Ertek = ertek;
+        Datum = DateTime.Now;
+    }
+
+    public override string ToString()
+    {
+        return $"{Tantargy}: {Ertek} ({Datum.ToShortDateString()})";
+    }
+}
+
+
+
+
+
+
+
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        IskolaRendszer rendszer = new IskolaRendszer();
+
+        // Teszt felhasználók
+        var diak = new Diak("Kiss Anna", "anna", "1234");
+        var tanar = new Tanar("Nagy Péter", "peter", "abcd");
+
+        rendszer.Regisztral(diak);
+        rendszer.Regisztral(tanar);
+
+        rendszer.Betoltes();
+
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("=== ISKOLA RENDSZER ===");
+            Console.Write("Felhasználónév: ");
+            string fn = Console.ReadLine();
+            Console.Write("Jelszó: ");
+            string pw = Console.ReadLine();
+
+            var felh = rendszer.Login(fn, pw);
+            if (felh != null)
+            {
+                if (felh is Diak d)
+                    d.Menu(rendszer);
+                else if (felh is Tanar t)
+                    t.Menu(rendszer);
+            }
+            else
+            {
+                Console.WriteLine("Hibás belépés!");
+                Console.ReadKey();
+            }
+        }
+    }
+}
+        
+    using System;
+
+class Program
+{
+    static void Main()
+    {
+        IskolaRendszer rendszer = new IskolaRendszer();
+
+        // Teszt felhasználók
+        var diak = new Diak("Kiss Anna", "anna", "1234");
+        var tanar = new Tanar("Nagy Péter", "peter", "abcd");
+
+        rendszer.Regisztral(diak);
+        rendszer.Regisztral(tanar);
+
+        rendszer.Betoltes();
+
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("=== ISKOLA RENDSZER ===");
+            Console.Write("Felhasználónév: ");
+            string fn = Console.ReadLine();
+            Console.Write("Jelszó: ");
+            string pw = Console.ReadLine();
+
+            var felh = rendszer.Login(fn, pw);
+            if (felh != null)
+            {
+                if (felh is Diak d)
+                    d.Menu(rendszer);
+                else if (felh is Tanar t)
+                    t.Menu(rendszer);
+            }
+            else
+            {
+                Console.WriteLine("Hibás belépés!");
+                Console.ReadKey();
+            }
+        }
+    }
+}
+        
+    using System;
+
+class Program
+{
+    static void Main()
+    {
+        IskolaRendszer rendszer = new IskolaRendszer();
+
+        // Teszt felhasználók
+        var diak = new Diak("Kiss Anna", "anna", "1234");
+        var tanar = new Tanar("Nagy Péter", "peter", "abcd");
+
+        rendszer.Regisztral(diak);
+        rendszer.Regisztral(tanar);
+
+        rendszer.Betoltes();
+
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("=== ISKOLA RENDSZER ===");
+            Console.Write("Felhasználónév: ");
+            string fn = Console.ReadLine();
+            Console.Write("Jelszó: ");
+            string pw = Console.ReadLine();
+
+            var felh = rendszer.Login(fn, pw);
+            if (felh != null)
+            {
+                if (felh is Diak d)
+                    d.Menu(rendszer);
+                else if (felh is Tanar t)
+                    t.Menu(rendszer);
+            }
+            else
+            {
+                Console.WriteLine("Hibás belépés!");
+                Console.ReadKey();
+            }
+        }
+    }
+}
+        
+    using System;
+
+class Program
+{
+    static void Main()
+    {
+        IskolaRendszer rendszer = new IskolaRendszer();
+
+        // Teszt felhasználók
+        var diak = new Diak("Kiss Anna", "anna", "1234");
+        var tanar = new Tanar("Nagy Péter", "peter", "abcd");
+
+        rendszer.Regisztral(diak);
+        rendszer.Regisztral(tanar);
+
+        rendszer.Betoltes();
+
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("=== ISKOLA RENDSZER ===");
+            Console.Write("Felhasználónév: ");
+            string fn = Console.ReadLine();
+            Console.Write("Jelszó: ");
+            string pw = Console.ReadLine();
+
+            var felh = rendszer.Login(fn, pw);
+            if (felh != null)
+            {
+                if (felh is Diak d)
+                    d.Menu(rendszer);
+                else if (felh is Tanar t)
+                    t.Menu(rendszer);
+            }
+            else
+            {
+                Console.WriteLine("Hibás belépés!");
+                Console.ReadKey();
+            }
+        }
+    }
+}
+        
+    using System;
+
+class Program
+{
+    static void Main()
+    {
+        IskolaRendszer rendszer = new IskolaRendszer();
+
+        // Teszt felhasználók
+        var diak = new Diak("Kiss Anna", "anna", "1234");
+        var tanar = new Tanar("Nagy Péter", "peter", "abcd");
+
+        rendszer.Regisztral(diak);
+        rendszer.Regisztral(tanar);
+
+        rendszer.Betoltes();
+
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("=== ISKOLA RENDSZER ===");
+            Console.Write("Felhasználónév: ");
+            string fn = Console.ReadLine();
+            Console.Write("Jelszó: ");
+            string pw = Console.ReadLine();
+
+            var felh = rendszer.Login(fn, pw);
+            if (felh != null)
+            {
+                if (felh is Diak d)
+                    d.Menu(rendszer);
+                else if (felh is Tanar t)
+                    t.Menu(rendszer);
+            }
+            else
+            {
+                Console.WriteLine("Hibás belépés!");
+                Console.ReadKey();
+            }
+        }
+    }
+}
+        
+    using System;
+
+class Program
+{
+    static void Main()
+    {
+        IskolaRendszer rendszer = new IskolaRendszer();
+
+        // Teszt felhasználók
+        var diak = new Diak("Kiss Anna", "anna", "1234");
+        var tanar = new Tanar("Nagy Péter", "peter", "abcd");
+
+        rendszer.Regisztral(diak);
+        rendszer.Regisztral(tanar);
+
+        rendszer.Betoltes();
+
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("=== ISKOLA RENDSZER ===");
+            Console.Write("Felhasználónév: ");
+            string fn = Console.ReadLine();
+            Console.Write("Jelszó: ");
+            string pw = Console.ReadLine();
+
+            var felh = rendszer.Login(fn, pw);
+            if (felh != null)
+            {
+                if (felh is Diak d)
+                    d.Menu(rendszer);
+                else if (felh is Tanar t)
+                    t.Menu(rendszer);
+            }
+            else
+            {
+                Console.WriteLine("Hibás belépés!");
+                Console.ReadKey();
+            }
+        }
+    }
+}
+        
+
+
+
+
+
+
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        IskolaRendszer rendszer = new IskolaRendszer();
+
+        // Teszt felhasználók
+        var diak = new Diak("Kiss Anna", "anna", "1234");
+        var tanar = new Tanar("Nagy Péter", "peter", "abcd");
+
+        rendszer.Regisztral(diak);
+        rendszer.Regisztral(tanar);
+
+        rendszer.Betoltes();
+
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("=== ISKOLA RENDSZER ===");
+            Console.Write("Felhasználónév: ");
+            string fn = Console.ReadLine();
+            Console.Write("Jelszó: ");
+            string pw = Console.ReadLine();
+
+            var felh = rendszer.Login(fn, pw);
+            if (felh != null)
+            {
+                if (felh is Diak d)
+                    d.Menu(rendszer);
+                else if (felh is Tanar t)
+                    t.Menu(rendszer);
+            }
+            else
+            {
+                Console.WriteLine("Hibás belépés!");
+                Console.ReadKey();
+            }
+        }
+    }
+}
